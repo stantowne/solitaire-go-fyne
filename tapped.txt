@@ -1,0 +1,46 @@
+func (cw *CardWidget) Tapped(_ *fyne.PointEvent) {
+	g := cw.game
+	// If nothing is selected, select this card (and group if tableau)
+	if g.selectedCard == nil {
+		g.selectedCard = cw.card
+		// Find source and index
+		for i, pile := range g.tableau {
+			for j, c := range pile {
+				if c == cw.card {
+					g.selectedSource = "tableau"
+					g.selectedIndex = i
+					g.selectedDepth = j
+					g.updateUI()
+					return
+				}
+			}
+		}
+		for i, pile := range g.foundations {
+			if len(pile) > 0 && pile[len(pile)-1] == cw.card {
+				g.selectedSource = "foundation"
+				g.selectedIndex = i
+				g.selectedDepth = len(pile) - 1
+				g.updateUI()
+				return
+			}
+		}
+		for i, c := range g.waste {
+			if c == cw.card && i == len(g.waste)-1 {
+				g.selectedSource = "waste"
+				g.selectedIndex = 0
+				g.selectedDepth = i
+				g.updateUI()
+				return
+			}
+		}
+	} else {
+		// Second click: try to move selectedCard/group to this card's pile
+		// TODO: Implement move logic and legality check
+		// After move or failed attempt, clear selection
+		g.selectedCard = nil
+		g.selectedSource = ""
+		g.selectedIndex = 0
+		g.selectedDepth = 0
+		g.updateUI()
+	}
+}
